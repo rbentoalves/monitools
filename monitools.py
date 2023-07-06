@@ -24,7 +24,7 @@ def main():
                sg.Push(),
                sg.Button("UK", pad=((10, 10), (4, 4)), font=font2, image_filename="UK.png", image_subsample=6),
                sg.Push()],
-              [sg.Push(), sg.Exit(pad=(1, 10),size=(10, 1))]]
+              [sg.Push(), sg.Exit(pad=(1, 10), size=(10, 1))]]
 
     # Create the Window
     window = sg.Window('LSbp GP&M tool-kit', layout)
@@ -47,15 +47,13 @@ def main():
             except pd.errors.EmptyDataError:
                 pre_selection = site_list
 
-            print(pre_selection)
+            #print(pre_selection)
 
-            windows.process_selection(geofolder_path, event, site_list, pre_selection)
+            windows.process_selection(geofolder_path, event, site_list, pre_selection, pre_selection_path)
 
             sg.popup(general_info_path)
+
             return
-
-
-
 
     window.close()
 

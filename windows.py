@@ -1,9 +1,10 @@
 import PySimpleGUI as sg
-import perfonitor.calculations
-import perfonitor.data_acquisition
-import perfonitor.data_treatment
-import perfonitor.file_creation
-import perfonitor.inputs
+import pandas as pd
+import perfonitor.calculations as calculations
+import perfonitor.data_acquisition as data_acquisition
+import perfonitor.data_treatment as data_treatment
+import perfonitor.file_creation as file_creation
+import perfonitor.inputs as inputs
 import event_tracker.event_tracker_manager as event_tracker_manager
 import os
 from itertools import compress
@@ -22,7 +23,7 @@ def collapse(layout, key, visible):
     return sg.pin(sg.Column(layout, key=key, visible=visible, pad=(0,0)))
 
 
-def process_selection(geofolder_path, geography, site_list, pre_selection):
+def process_selection(geofolder_path, geography, site_list, pre_selection, pre_selection_path):
     sg.theme('DarkAmber')  # Add a touch of color
     # All the stuff inside your window.
     layout = [[sg.Text('Welcome to the GP&M tool-kit, what do you want to do?', pad=((2, 10), (2, 5)))],
@@ -41,7 +42,7 @@ def process_selection(geofolder_path, geography, site_list, pre_selection):
         if event == sg.WIN_CLOSED or event == 'Exit':  # if user closes window or clicks exit
             break
         if event == 'Daily monitoring report':
-            daily_monitoring_report(site_list, pre_selection, geography)
+            daily_monitoring_report(site_list, pre_selection, geography, pre_selection_path)
 
         if event == 'Event tracker manager':
             event_tracker_manager.main()
@@ -50,7 +51,7 @@ def process_selection(geofolder_path, geography, site_list, pre_selection):
     return
 
 
-def daily_monitoring_report(site_list, pre_selection, geography):
+def daily_monitoring_report(site_list, pre_selection, geography, pre_selection_path):
     sg.theme('DarkAmber')  # Add a touch of color
     # All the stuff inside your window.
     options_layout = [[sg.Text('Welcome to the DMR tool, what do you want to do?', pad=((2, 10), (2, 5)))],
@@ -74,19 +75,21 @@ def daily_monitoring_report(site_list, pre_selection, geography):
         if event == sg.WIN_CLOSED or event == 'Exit':  # if user closes window or clicks exit
             break
         if event == 'Create Incidents List':
-            site_selection = list(compress(site_list,list(values.values())))
-            print(site_selection)
-            incidents_file, tracker_incidents_file, site_list, geography, date, df_component_code = \
-                perfonitor.file_creation.dmrprocess1(site_selection)
+            site_selection = list(compress(site_list, list(values.values())))
+            print("You selected: \n", site_selection)
+            pd.DataFrame(site_selection).to_csv(pre_selection_path, header=None, index=None, sep=' ', mode='a')
+
+            incidents_file, tracker_incidents_file, geography, date, df_component_code = \
+                file_creation.dmrprocess1(site_selection)
 
         if event == 'Create final report':
             try:
-                dmr_report = \
-                    perfonitor.file_creation.dmrprocess2(incidents_file, tracker_incidents_file, site_list, geography, date)
-                # dmr_report = dmrprocess2_fromscratch.main(incidents_file,tracker_incidents_file, site_list, geography, date)
+                dmr_report = file_creation.dmrprocess2_new(incidents_file, tracker_incidents_file, site_selection,
+                                                           geography, date)
+
             except NameError:
-                dmr_report = perfonitor.file_creation.dmrprocess2()
-                # dmr_report = dmrprocess2_fromscratch.main()
+                dmr_report = file_creation.dmrprocess2_new()
+
             if dmr_report:
                 event, values = sg.Window('Choose an option', [[sg.Text('Process complete, open file?')],
                                                                [sg.Button('Yes'), sg.Button('Cancel')]]).read(
