@@ -32,7 +32,7 @@ def main():
     while True:
         event, values = window.read(timeout=100)
 
-        if event == sg.WIN_CLOSED or event == 'Exit':  # if user closes window or clicks exit
+        if event == sg.WIN_CLOSED or event == 'Exit':  # if user closes window or clicks exit+
             break
         if event == "USA" or event == "UK" or event == "ES" or event == "AUS":
             geofolder_path = os.path.join(os.path.join(os.environ['USERPROFILE'])) + \

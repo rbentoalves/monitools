@@ -5,11 +5,11 @@ import perfonitor.data_acquisition as data_acquisition
 import perfonitor.data_treatment as data_treatment
 import perfonitor.file_creation as file_creation
 import perfonitor.inputs as inputs
-import event_tracker.event_tracker_manager as event_tracker_manager
+import perfonitor.event_tracker_manager as event_tracker_manager
 import os
 from itertools import compress
 
-# <editor-fold desc="ET Functions">
+# <editor-fold desc="Windows for tool">
 
 def collapse(layout, key, visible):
     """
@@ -45,7 +45,7 @@ def process_selection(geofolder_path, geography, site_list, pre_selection, pre_s
             daily_monitoring_report(site_list, pre_selection, geography, pre_selection_path)
 
         if event == 'Event tracker manager':
-            event_tracker_manager.main()
+            event_tracker_manager.main(site_list, pre_selection)
 
     window.close()
     return
@@ -242,7 +242,7 @@ def event_tracker():
     return
 
 
-def underperformance_report():
+def underperformance_report(site_list, pre_selection):
     username = os.getlogin()
 
     sg.theme('DarkAmber')  # Add a touch of color
@@ -262,7 +262,7 @@ def underperformance_report():
                                 sg.In(key='-ECAL-', text_color='black', size=(16, 1), enable_events=True,
                                       readonly=True, visible=True)]]
 
-    layout = [[sg.Text('Choose the source of information:', pad=((2, 10), (2, 5)))],
+    options_layout = [[sg.Text('Choose the source of information:', pad=((2, 10), (2, 5)))],
               [sg.Radio('Month', group_id="period", default=False, key="-PERMON-"),
                sg.Radio('Choose', group_id="period", default=True, key="-PERCHO-")],
               [sg.Text('Choose the period of analysis:', pad=((2, 10), (2, 5)))],
@@ -285,6 +285,13 @@ def underperformance_report():
                sg.Combo([20, 50, 85, 100], default_value=50, size=(11, 3), readonly=True, key='-THR-',
                         pad=((50, 10), (2, 10)))],
               [sg.Button('Submit'), sg.Exit()]]
+
+    sites_layout = [[sg.Checkbox(site, size=(20, 1), default=site in pre_selection,
+                                 key=site.replace(" ", "_"))] for site in site_list]
+
+    layout = [[sg.Column(options_layout),
+               sg.VSeperator(),
+               sg.Column(sites_layout, scrollable=True)]]
 
     # Create the Window
     window = sg.Window('Event Tracker', layout)
@@ -328,6 +335,81 @@ def underperformance_report():
 
     window.close()
 
+    return
+
+
+def curtailment_window(site_list, pre_selection, geography, pre_selection_path):
+    username = os.getlogin()
+    sg.theme('DarkAmber')  # Add a touch of color
+    # All the stuff inside your window.
+    options_layout = layout = [[sg.Text('Choose the source of information:', pad=((2, 10), (2, 5)))],
+              [sg.Radio('Month', group_id="period", default=False, key="-PERMON-"),
+               sg.Radio('Choose', group_id="period", default=True, key="-PERCHO-")],
+              [sg.Text('Choose the period of analysis:', pad=((2, 10), (2, 5)))],
+              [sg.Radio('Database', group_id="source", disabled=True, default=False, key="-SRCDB-"),
+               sg.Radio('Event Tracker file', group_id="source", default=True, key="-SRCFILE-")],
+              [sg.Text('Select source on Desktop', pad=((0, 10), (10, 2)))],
+              [sg.FolderBrowse(target='-SRCFOLDER-',
+                               initial_folder="C:/Users/" + username + "/OneDrive - Lightsource BP/Desktop"),
+               sg.In(key='-SRCFOLDER-', text_color='black', size=(20, 1), enable_events=True, readonly=True,
+                     visible=True)],
+              [sg.Text('Enter geography ', pad=((0, 10), (10, 2))), sg.Push()],
+              [sg.Combo(['AUS', 'ES', 'USA'], size=(4, 3), readonly=True, key='-GEO-', pad=((5, 10), (2, 10))),
+               sg.Push(),
+               sg.Checkbox('Recalculate All', enable_events=True, size=(13, 3), pad=((20, 0), (0, 10)),
+                           key='chk_recalc')],
+              [sg.Text('Select level of analysis', pad=((0, 10), (10, 2))), sg.Push(),
+               sg.Text('Select Irradiance Threshold', pad=((0, 10), (10, 2))), sg.Push()],
+              [sg.Combo(['All', 'Inverter level', 'Inverter only'], default_value="All", size=(11, 3), readonly=True,
+                        key='-LVL-', pad=((5, 10), (2, 10))),
+               sg.Combo([20, 50, 85, 100], default_value=50, size=(11, 3), readonly=True, key='-THR-',
+                        pad=((50, 10), (2, 10)))],
+              [sg.Button('Submit'), sg.Exit()]]
+
+    sites_layout = [[sg.Checkbox(site, size=(20, 1), default=site in pre_selection,
+                                 key=site.replace(" ","_"))] for site in site_list]
+
+    layout = [[sg.Column(options_layout),
+               sg.VSeperator(),
+               sg.Column(sites_layout, scrollable=True)]]
+
+    # Create the Window
+    window = sg.Window('Daily Monitoring Report', layout)
+    # Event Loop to process "events" and get the "values" of the inputs
+    while True:
+        event, values = window.read(timeout=100)
+
+        if event == sg.WIN_CLOSED or event == 'Exit':  # if user closes window or clicks exit
+            break
+        if event == 'Create Incidents List':
+            site_selection = list(compress(site_list, list(values.values())))
+            print("You selected: \n", site_selection)
+            pd.DataFrame(site_selection).to_csv(pre_selection_path, header=None, index=None, sep=' ', mode='a')
+
+            incidents_file, tracker_incidents_file, geography, date, df_component_code = \
+                file_creation.dmrprocess1(site_selection)
+
+        if event == 'Create final report':
+            try:
+                dmr_report = file_creation.dmrprocess2_new(incidents_file, tracker_incidents_file, site_selection,
+                                                           geography, date)
+
+            except NameError:
+                dmr_report = file_creation.dmrprocess2_new()
+
+            if dmr_report:
+                event, values = sg.Window('Choose an option', [[sg.Text('Process complete, open file?')],
+                                                               [sg.Button('Yes'), sg.Button('Cancel')]]).read(
+                    close=True)
+
+                if event == 'Yes':
+                    command = 'start "EXCEL.EXE" "' + str(dmr_report) + '"'
+                    os.system(command)
+                    break
+                else:
+                    break
+
+    window.close()
     return
 
 
