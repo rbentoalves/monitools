@@ -141,7 +141,7 @@ def update_event_tracker(geography):
                            pad=((20, 0), (0, 10)), key='chk_updt')],
               [sg.Combo(['AUS', 'ES', 'USA'], default_value=geography, size=(4, 3), readonly=True, key='-GEO-',
                         pad=((5, 10), (2, 10))),
-               sg.Push(), sg.Checkbox('Recalculate All', enable_events=True, size=(13, 3), pad=((20, 0), (0, 10)),
+               sg.Push(), sg.Checkbox('Recalculate All', disabled=True, enable_events=True, size=(13, 3), pad=((20, 0), (0, 10)),
                                       key='chk_recalc')],
               [sg.Button('Submit'), sg.Exit()]]
 
@@ -207,7 +207,7 @@ def event_tracker(geography):
               [sg.Text('Enter geography ', pad=((0, 10), (10, 2))), sg.Push()],
               [sg.Combo(['AUS', 'ES', 'USA'], default_value=geography, size=(4, 3), readonly=True, key='-GEO-',
                         pad=((5, 10), (2, 10))),
-               sg.Push(), sg.Checkbox('Recalculate All', enable_events=True, size=(13, 3), pad=((20, 0), (0, 10)),
+               sg.Push(), sg.Checkbox('Recalculate All', disabled=True, enable_events=True, size=(13, 3), pad=((20, 0), (0, 10)),
                                       key='chk_recalc')],
               [sg.Button('Submit'), sg.Exit()]]
 
@@ -284,7 +284,7 @@ def underperformance_report(site_list, pre_selection, geography):
                       [sg.Combo(['AUS', 'ES', 'USA'], default_value=geography, size=(4, 3), readonly=True, key='-GEO-',
                                 pad=((5, 10), (2, 10))),
                        sg.Push(),
-                       sg.Checkbox('Recalculate All', enable_events=True, size=(13, 3), pad=((20, 0), (0, 10)),
+                       sg.Checkbox('Recalculate All', disabled=True, enable_events=True, size=(13, 3), pad=((20, 0), (0, 10)),
                                    key='chk_recalc')],
                       [sg.Text('Select level of analysis', pad=((0, 10), (10, 2))), sg.Push(),
                        sg.Text('Select Irradiance Threshold', pad=((0, 10), (10, 2))), sg.Push()],
