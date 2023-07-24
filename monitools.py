@@ -1,9 +1,17 @@
 import PySimpleGUI as sg
 import os
+import sys
 import windows
 import pandas as pd
 
 # This is a sample Python script.
+def resource_path(relative_path):
+    try:
+        base_path = sys._MEIPASS
+    except Exception:
+        base_path = os.path.abspath(".")
+
+    return os.path.join(base_path, relative_path)
 
 # Press Shift+F10 to execute it or replace it with your code.
 # Press Double Shift to search everywhere for classes, files, tool windows, actions, and settings.
@@ -16,13 +24,13 @@ def main():
     font2 = ('Helvetica', 1)
 
     layout = [[sg.Text('Please choose your geography', pad=((10, 10), (5, 5)), font=font1)],
-              [sg.Button("USA", pad=((10, 10), (4, 4)), font=font2, image_filename="USA.png", image_subsample=6),
+              [sg.Button("USA", pad=((10, 10), (4, 4)), font=font2, image_filename=resource_path("USA.png"), image_subsample=6),
                sg.Push(),
-               sg.Button("ES", pad=((10, 10), (4, 4)), font=font2, image_filename="ES.png", image_subsample=6),
+               sg.Button("ES", pad=((10, 10), (4, 4)), font=font2, image_filename=resource_path("ES.png"), image_subsample=6),
                sg.Push()],
-              [sg.Button("AUS", pad=((10, 10), (4, 4)), font=font2, image_filename="AUS.png", image_subsample=6),
+              [sg.Button("AUS", pad=((10, 10), (4, 4)), font=font2, image_filename=resource_path("AUS.png"), image_subsample=6),
                sg.Push(),
-               sg.Button("UK", pad=((10, 10), (4, 4)), font=font2, image_filename="UK.png", image_subsample=6),
+               sg.Button("UK", pad=((10, 10), (4, 4)), font=font2, image_filename=resource_path("UK.png"), image_subsample=6),
                sg.Push()],
               [sg.Push(), sg.Exit(pad=(1, 10), size=(10, 1))]]
 
