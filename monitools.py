@@ -1,7 +1,7 @@
 import PySimpleGUI as sg
 import os
 import sys
-import windows
+import monitools.windows as windows
 import pandas as pd
 
 # This is a sample Python script.
