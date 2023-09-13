@@ -82,9 +82,11 @@ def daily_monitoring_report(site_list, pre_selection, geography, pre_selection_p
         if event == sg.WIN_CLOSED or event == 'Exit':  # if user closes window or clicks exit
             break
         if event == 'Create Incidents List':
-            site_selection = list(compress(site_list, list(values.values())))
+            site_values = {site.replace(" ", "_"): values[site.replace(" ", "_")] for site in site_list}
+            site_selection = list(compress(site_list, list(site_values.values())))
+            #site_selection = list(compress(site_list, list(values.values())))
             print("You selected: \n", site_selection)
-            pd.DataFrame(site_selection).to_csv(pre_selection_path, header=None, index=None, sep=' ', mode='a')
+            pd.DataFrame(site_selection).to_csv(pre_selection_path, header=None, index=None, sep=' ', mode='w')
 
             incidents_file, tracker_incidents_file, geography, date, df_component_code = \
                 file_creation.dmrprocess1(site_selection)
@@ -320,6 +322,11 @@ def underperformance_report(site_list, pre_selection, geography):
             toggle_recalc = not toggle_recalc
 
         if event == 'Submit':
+            site_values = {site.replace(" ", "_"): values[site.replace(" ", "_")] for site in site_list}
+            site_selection = list(compress(site_list, list(site_values.values())))
+            #print(site_list)
+            #print(values[site_list])
+            print(site_selection)
 
             source_folder = values['-SRCFOLDER-']
             level = values['-LVL-']
@@ -340,7 +347,8 @@ def underperformance_report(site_list, pre_selection, geography):
                     elif "MON" in key:
                         period_list = ["monthly"]
 
-            return source_folder, geography, geopgraphy_folder, toggle_recalc, period_list, level, irradiance_threshold
+            return source_folder, geography, geopgraphy_folder, toggle_recalc, period_list, level, irradiance_threshold,\
+                   site_selection
 
     window.close()
 
@@ -390,7 +398,8 @@ def curtailment_window(site_list, pre_selection, geography, pre_selection_path):
             break
 
         if event == 'Submit':
-            site_selection = list(compress(site_list, list(values.values())[(0-len(site_list)):]))
+            site_values = {site.replace(" ", "_"): values[site.replace(" ", "_")] for site in site_list}
+            site_selection = list(compress(site_list, list(site_values.values())))
             source_folder = values['-SRCFOLDER-']
             irradiance_threshold = values['-THR-']
             geography = values['-GEO-']
@@ -467,7 +476,9 @@ def clipping_window(site_list, pre_selection, geography, pre_selection_path):
             break
 
         if event == 'Submit':
-            site_selection = list(compress(site_list, list(values.values())[(0-len(site_list)):]))
+            site_values = {site.replace(" ", "_"): values[site.replace(" ", "_")] for site in site_list}
+            site_selection = list(compress(site_list, list(site_values.values())))
+            #site_selection = list(compress(site_list, list(values.values())[(0-len(site_list)):]))
             source_folder = values['-SRCFOLDER-']
             irradiance_threshold = values['-THR-']
             geography = values['-GEO-']
