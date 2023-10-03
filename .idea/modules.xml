@@ -3,6 +3,7 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/.idea/monitools.iml" filepath="$PROJECT_DIR$/.idea/monitools.iml" />
+      <module fileurl="file://$PROJECT_DIR$/../nonmonitools/.idea/nonmonitools.iml" filepath="$PROJECT_DIR$/../nonmonitools/.idea/nonmonitools.iml" />
       <module fileurl="file://$PROJECT_DIR$/../perfonitor/.idea/perfonitor.iml" filepath="$PROJECT_DIR$/../perfonitor/.idea/perfonitor.iml" />
     </modules>
   </component>

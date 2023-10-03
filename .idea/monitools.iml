@@ -6,6 +6,7 @@
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="module" module-name="perfonitor" />
     <orderEntry type="module" module-name="perfonitor" />
+    <orderEntry type="module" module-name="nonmonitools" />
   </component>
   <component name="TestRunnerService">
     <option name="PROJECT_TEST_RUNNER" value="pytest" />
