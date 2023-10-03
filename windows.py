@@ -143,8 +143,8 @@ def update_event_tracker(geography):
                            pad=((20, 0), (0, 10)), key='chk_updt')],
               [sg.Combo(['AUS', 'ES', 'USA'], default_value=geography, size=(4, 3), readonly=True, key='-GEO-',
                         pad=((5, 10), (2, 10))),
-               sg.Push(), sg.Checkbox('Recalculate All', disabled=True, enable_events=True, size=(13, 3), pad=((20, 0), (0, 10)),
-                                      key='chk_recalc')],
+               sg.Push(), sg.Checkbox('Recalculate All', disabled=True, enable_events=True, size=(13, 3),
+                                      pad=((20, 0), (0, 10)), key='chk_recalc')],
               [sg.Button('Submit'), sg.Exit()]]
 
     # Create the Window
@@ -209,8 +209,8 @@ def event_tracker(geography):
               [sg.Text('Enter geography ', pad=((0, 10), (10, 2))), sg.Push()],
               [sg.Combo(['AUS', 'ES', 'USA'], default_value=geography, size=(4, 3), readonly=True, key='-GEO-',
                         pad=((5, 10), (2, 10))),
-               sg.Push(), sg.Checkbox('Recalculate All', disabled=True, enable_events=True, size=(13, 3), pad=((20, 0), (0, 10)),
-                                      key='chk_recalc')],
+               sg.Push(), sg.Checkbox('Recalculate All', disabled=True, enable_events=True, size=(13, 3),
+                                      pad=((20, 0), (0, 10)), key='chk_recalc')],
               [sg.Button('Submit'), sg.Exit()]]
 
     # Create the Window
@@ -271,12 +271,12 @@ def underperformance_report(site_list, pre_selection, geography):
                                 sg.In(key='-ECAL-', text_color='black', size=(16, 1), enable_events=True,
                                       readonly=True, visible=True)]]
 
-    options_layout = [[sg.Text('Choose the source of information:', pad=((2, 10), (2, 5)))],
+    options_layout = [[sg.Text('Choose the period of analysis:', pad=((2, 10), (2, 5)))],
                       [sg.Radio('Month', group_id="period", default=False, key="-PERMON-"),
                        sg.Radio('Choose', group_id="period", default=True, key="-PERCHO-")],
-                      [sg.Text('Choose the period of analysis:', pad=((2, 10), (2, 5)))],
-                      [sg.Radio('Database', group_id="source", disabled=True, default=False, key="-SRCDB-"),
-                       sg.Radio('Event Tracker file', group_id="source", default=True, key="-SRCFILE-")],
+                      [sg.Text('Choose grouping of output files:', pad=((2, 10), (2, 5)))],
+                      [sg.Combo(['Site', 'O&M', 'Portfolio', 'None'], default_value="None", size=(20, 3), readonly=True,
+                                key='-GRP-', pad=((5, 10), (2, 10)))],
                       [sg.Text('Select source on Desktop', pad=((0, 10), (10, 2)))],
                       [sg.FolderBrowse(target='-SRCFOLDER-',
                                        initial_folder="C:/Users/" + username + "/OneDrive - Lightsource BP/Desktop"),
@@ -297,7 +297,7 @@ def underperformance_report(site_list, pre_selection, geography):
                                 pad=((50, 10), (2, 10)))],
                       [sg.Button('Submit'), sg.Exit()]]
 
-    sites_layout = [[sg.Checkbox(site, size=(20, 1), default=site in pre_selection,
+    sites_layout = [[sg.Checkbox(site, size=(20, 15), default=site in pre_selection,
                                  key=site.replace(" ", "_"))] for site in site_list]
 
     layout = [[sg.Column(options_layout),
@@ -333,22 +333,17 @@ def underperformance_report(site_list, pre_selection, geography):
             irradiance_threshold = values['-THR-']
             geography = values['-GEO-']
             geopgraphy_folder = source_folder + "/" + geography
+            grouping_type = values['-GRP-']
 
             for key in values.keys():
-                if "SRC" in key and values[key] is True:
-                    if "FILE" in key:
-                        source_type = "file"
-                    elif "DB" in key:
-                        source_type = "database"
-
-                elif "PER" in key and values[key] is True:
+                if "PER" in key and values[key] is True:
                     if "CHO" in key:
                         period_list = ["choose"]
                     elif "MON" in key:
                         period_list = ["monthly"]
 
             return source_folder, geography, geopgraphy_folder, toggle_recalc, period_list, level, irradiance_threshold,\
-                   site_selection
+                   site_selection, grouping_type
 
     window.close()
 
