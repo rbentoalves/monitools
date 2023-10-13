@@ -3,6 +3,8 @@ import os
 import sys
 import windows as windows
 import pandas as pd
+import re
+import perfonitor.inputs as inputs
 
 # This is a sample Python script.
 def resource_path(relative_path):
@@ -43,13 +45,37 @@ def main():
         if event == sg.WIN_CLOSED or event == 'Exit':  # if user closes window or clicks exit+
             break
         if event == "USA" or event == "UK" or event == "ES" or event == "AUS":
-            geofolder_path = os.path.join(os.path.join(os.environ['USERPROFILE'])) + \
-                             "\OneDrive - Lightsource BP\Desktop\Daily Monitoring Report\\" + event
+            # geofolder_path = os.path.join(os.path.join(os.environ['USERPROFILE'])) + \
+            #                "/OneDrive - Lightsource BP/Desktop/Daily Monitoring Report/" + event
 
-            general_info_path = geofolder_path + "\Info&Templates\General Info " + event + ".xlsx"
-            pre_selection_path = geofolder_path + "\Info&Templates\site_selection.txt"
 
-            site_list = pd.read_excel(general_info_path, sheet_name='Site Info', engine='openpyxl')["Site"].to_list()
+            print(os.getcwd())
+            desktop_path = os.path.join(os.path.join(os.environ['USERPROFILE']), 'Desktop').replace('\\', "/").replace("/Desktop", "/OneDrive - Lightsource BP/Desktop")
+            print("Desktop folder: ", desktop_path)
+            geofolder_path = desktop_path + "/Daily Monitoring Report/" + event
+
+            general_info_path = geofolder_path + "/Info&Templates/General Info " + event + ".xlsx"
+            pre_selection_path = geofolder_path + "/Info&Templates/site_selection.txt"
+
+            print("General Info path: ", general_info_path)
+            print("Pre-selection path: ", pre_selection_path)
+
+            try:
+                site_list = pd.read_excel(general_info_path, sheet_name='Site Info', engine='openpyxl')["Site"].to_list()
+            except FileNotFoundError:
+                general_info_path = inputs.input_file(desktop_path)
+                geofolder_path = re.search(r'C.*Report/' + event, general_info_path).group().replace('\\', "/")
+
+                pre_selection_path = geofolder_path + "/Info&Templates/site_selection.txt"
+
+                print("\nFailure in fecthing general info, new paths are:", general_info_path)
+                print("General Info path: ", general_info_path)
+                print("Pre-selection path: ", pre_selection_path)
+
+                site_list = pd.read_excel(general_info_path, sheet_name='Site Info', engine='openpyxl')["Site"].to_list()
+            print("Full site list read successfully")
+
+
             try:
                 pre_selection = pd.read_csv(pre_selection_path, header=None)[0].to_list()
             except pd.errors.EmptyDataError:
