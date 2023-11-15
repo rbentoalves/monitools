@@ -89,6 +89,8 @@ def daily_monitoring_report(site_list, pre_selection, geography, pre_selection_p
                 file_creation.dmrprocess1(site_selection)
 
         if event == 'Create final report':
+            site_values = {site.replace(" ", "_"): values[site.replace(" ", "_")] for site in site_list}
+            site_selection = list(compress(site_list, list(site_values.values())))
             try:
                 dmr_report = file_creation.dmrprocess2_new(incidents_file, tracker_incidents_file, site_selection,
                                                            geography, date)
