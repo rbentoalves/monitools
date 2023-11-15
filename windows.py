@@ -1,10 +1,7 @@
 import PySimpleGUI as sg
 import pandas as pd
 import perfonitor.calculations as calculations
-import perfonitor.data_acquisition as data_acquisition
-import perfonitor.data_treatment as data_treatment
 import perfonitor.file_creation as file_creation
-import perfonitor.inputs as inputs
 import perfonitor.event_tracker_manager as event_tracker_manager
 import os
 from itertools import compress

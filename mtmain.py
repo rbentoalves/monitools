@@ -1,7 +1,7 @@
 import PySimpleGUI as sg
 import os
 import sys
-import windows as windows
+import monitools.windows as windows
 import pandas as pd
 import re
 import perfonitor.inputs as inputs
