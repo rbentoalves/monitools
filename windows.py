@@ -137,13 +137,14 @@ def update_event_tracker(geography):
               [sg.FolderBrowse(target='-DMRFOLDER-'),
                sg.In(key='-DMRFOLDER-', text_color='black', size=(20, 1), enable_events=True, readonly=True,
                      visible=True)],
+              [sg.Push(),sg.Checkbox('Update All Export\n& Irradiance', default=True, enable_events=True, size=(13, 3),
+                          pad=((20, 0), (0, 10)), key='chk_updt')],
               [sg.Text('Enter geography ', pad=((0, 10), (10, 2))), sg.Push(),
-               sg.Checkbox('Update All Export\n& Irradiance', default=True, enable_events=True, size=(13, 3),
-                           pad=((20, 0), (0, 10)), key='chk_updt')],
+               sg.Text('Recalculate')],
               [sg.Combo(['AUS', 'ES', 'USA'], default_value=geography, size=(4, 3), readonly=True, key='-GEO-',
                         pad=((5, 10), (2, 10))),
-               sg.Push(), sg.Checkbox('Recalculate All', disabled=True, enable_events=True, size=(13, 3),
-                                      pad=((20, 0), (0, 10)), key='chk_recalc')],
+               sg.Push(), sg.Combo(['No', 'Last month', 'Last year'], default_value="No", size=(10, 3), readonly=True,
+                                   key='-REC-')],
               [sg.Button('Submit'), sg.Exit()]]
 
     # Create the Window
@@ -151,7 +152,7 @@ def update_event_tracker(geography):
 
     toggle_sec1 = False
     toggle_updt = True
-    toggle_recalc = False
+
 
     # Event Loop to process "events" and get the "values" of the inputs
     while True:
@@ -168,15 +169,13 @@ def update_event_tracker(geography):
         if event == 'chk_updt':
             toggle_updt = not toggle_updt
 
-        if event == 'chk_recalc':
-            toggle_recalc = not toggle_recalc
-
         if event == 'Submit':
             date_start = values['-SCAL-']  # date is string
             date_end = values['-ECAL-']
             event_tracker_path = values['-ETFILE-']
             dmr_folder = values['-DMRFOLDER-']
             geography = values['-GEO-']
+            recalculate = values['-REC-']
 
             if date_end == "":
                 date_end = None
@@ -184,7 +183,7 @@ def update_event_tracker(geography):
             if toggle_sec1 is False:
                 date_end = None
             window.close()
-            return date_start, date_end, event_tracker_path, dmr_folder, geography, toggle_updt, toggle_recalc
+            return date_start, date_end, event_tracker_path, dmr_folder, geography, toggle_updt, recalculate
 
     # window.close()
 
@@ -205,11 +204,12 @@ def event_tracker(geography):
                                initial_folder="C:/Users/" + username + "/OneDrive - Lightsource BP/Desktop"),
                sg.In(key='-SRCFOLDER-', text_color='black', size=(20, 1), enable_events=True, readonly=True,
                      visible=True)],
-              [sg.Text('Enter geography ', pad=((0, 10), (10, 2))), sg.Push()],
+              [sg.Text('Enter geography ', pad=((0, 10), (10, 2))), sg.Push(),
+               sg.Text('Recalculate')],
               [sg.Combo(['AUS', 'ES', 'USA'], default_value=geography, size=(4, 3), readonly=True, key='-GEO-',
                         pad=((5, 10), (2, 10))),
-               sg.Push(), sg.Checkbox('Recalculate All', disabled=True, enable_events=True, size=(13, 3),
-                                      pad=((20, 0), (0, 10)), key='chk_recalc')],
+               sg.Push(), sg.Combo(['No', 'Last month', 'Last year'], default_value="No", size=(10, 3), readonly=True,
+                                   key='-REC-')],
               [sg.Button('Submit'), sg.Exit()]]
 
     # Create the Window
@@ -217,7 +217,7 @@ def event_tracker(geography):
 
     # toggle_sec1 = False
     # toggle_updt = True
-    toggle_recalc = False
+    #toggle_recalc = False
 
     # Event Loop to process "events" and get the "values" of the inputs
     while True:
@@ -227,13 +227,11 @@ def event_tracker(geography):
             window.close()
             return "None", "None", "None", "None"
 
-        if event == 'chk_recalc':
-            toggle_recalc = not toggle_recalc
-
         if event == 'Submit':
 
             source_folder = values['-SRCFOLDER-']
             geography = values['-GEO-']
+            recalculate = values['-REC-']
             geopgraphy_folder = source_folder + "/" + geography
 
             for key in values.keys():
@@ -243,7 +241,7 @@ def event_tracker(geography):
                     elif "DB" in key:
                         source_type = "database"
 
-            return source_folder, geography, geopgraphy_folder, toggle_recalc
+            return source_folder, geography, geopgraphy_folder, recalculate
 
     window.close()
 
@@ -283,10 +281,7 @@ def underperformance_report(site_list, pre_selection, geography):
                              visible=True)],
                       [sg.Text('Enter geography ', pad=((0, 10), (10, 2))), sg.Push()],
                       [sg.Combo(['AUS', 'ES', 'USA'], default_value=geography, size=(4, 3), readonly=True, key='-GEO-',
-                                pad=((5, 10), (2, 10))),
-                       sg.Push(),
-                       sg.Checkbox('Recalculate All', disabled=True, enable_events=True, size=(13, 3), pad=((20, 0), (0, 10)),
-                                   key='chk_recalc')],
+                                pad=((5, 10), (2, 10)))],
                       [sg.Text('Select level of analysis', pad=((0, 10), (10, 2))), sg.Push(),
                        sg.Text('Select Irradiance Threshold', pad=((0, 10), (10, 2))), sg.Push()],
                       [sg.Combo(['All', 'Inverter level', 'Inverter only'], default_value="All", size=(11, 3),
@@ -317,9 +312,6 @@ def underperformance_report(site_list, pre_selection, geography):
         if event == sg.WIN_CLOSED or event == 'Exit':  # if user closes window or clicks exit
             break
 
-        if event == 'chk_recalc':
-            toggle_recalc = not toggle_recalc
-
         if event == 'Submit':
             site_values = {site.replace(" ", "_"): values[site.replace(" ", "_")] for site in site_list}
             site_selection = list(compress(site_list, list(site_values.values())))
@@ -333,6 +325,7 @@ def underperformance_report(site_list, pre_selection, geography):
             geography = values['-GEO-']
             geopgraphy_folder = source_folder + "/" + geography
             grouping_type = values['-GRP-']
+            recalculate_value = False
 
             for key in values.keys():
                 if "PER" in key and values[key] is True:
@@ -341,7 +334,7 @@ def underperformance_report(site_list, pre_selection, geography):
                     elif "MON" in key:
                         period_list = ["monthly"]
 
-            return source_folder, geography, geopgraphy_folder, toggle_recalc, period_list, level, irradiance_threshold,\
+            return source_folder, geography, geopgraphy_folder, recalculate_value, period_list, level, irradiance_threshold,\
                    site_selection, grouping_type
 
     window.close()
