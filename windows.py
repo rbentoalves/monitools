@@ -348,7 +348,6 @@ def curtailment_window(site_list, pre_selection, geography, pre_selection_path):
     # All the stuff inside your window.
     options_layout = layout = [[sg.Text('Choose the source of information:', pad=((2, 10), (2, 5)))],
                                [sg.Radio('Month', group_id="period", default=False, key="-PERMON-"),
-                                sg.Radio('YTD', group_id="period", default=True, key="-PERYER-"),
                                 sg.Radio('Choose', group_id="period", default=True, key="-PERCHO-")],
                                [sg.Text('Choose the period of analysis:', pad=((2, 10), (2, 5)))],
                                [sg.Radio('Database', group_id="source", disabled=True, default=False, key="-SRCDB-"),
@@ -404,8 +403,7 @@ def curtailment_window(site_list, pre_selection, geography, pre_selection_path):
                         period = "choose"
                     elif "MON" in key:
                         period = "monthly"
-                    elif "YER" in key:
-                        period = "ytd"
+
 
             curtailment_events_by_site, monthly_curtailment_by_site, site_list_curt, dest_file, component_data, \
             fmeca_data = calculations.curtailment_classic(source_folder, geography, geopgraphy_folder, site_selection,
@@ -426,7 +424,6 @@ def clipping_window(site_list, pre_selection, geography, pre_selection_path):
     # All the stuff inside your window.
     options_layout = layout = [[sg.Text('Choose the source of information:', pad=((2, 10), (2, 5)))],
                                [sg.Radio('Month', group_id="period", default=False, key="-PERMON-"),
-                                sg.Radio('YTD', group_id="period", default=True, key="-PERYER-"),
                                 sg.Radio('Choose', group_id="period", default=True, key="-PERCHO-")],
                                [sg.Text('Choose the period of analysis:', pad=((2, 10), (2, 5)))],
                                [sg.Radio('Database', group_id="source", disabled=True, default=False, key="-SRCDB-"),
@@ -483,8 +480,7 @@ def clipping_window(site_list, pre_selection, geography, pre_selection_path):
                         period = "choose"
                     elif "MON" in key:
                         period = "monthly"
-                    elif "YER" in key:
-                        period = "ytd"
+
 
             summaries_by_site, site_selection, dest_file, component_data, fmeca_data, graphs_by_site = \
                 calculations.clipping_classic(source_folder, geography, geopgraphy_folder, site_selection, period,
