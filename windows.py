@@ -482,15 +482,15 @@ def clipping_window(site_list, pre_selection, geography, pre_selection_path):
                         period = "monthly"
 
 
-            summaries_by_site, site_selection, dest_file, component_data, fmeca_data, graphs_by_site = \
+            summaries_by_site, site_selection, dest_file, component_data, fmeca_data = \
                 calculations.clipping_classic(source_folder, geography, geopgraphy_folder, site_selection, period,
                                               irradiance_threshold)
 
             for site in site_selection:
                 summaries_site = summaries_by_site[site]
-                graphs_site = graphs_by_site[site]
+                #graphs_site = graphs_by_site[site]
 
-                file_creation.create_clipping_file(site, summaries_site, dest_file, graphs_site)
+                file_creation.create_clipping_file(site, summaries_site, dest_file)
 
             return
 
