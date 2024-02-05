@@ -24,12 +24,11 @@ def collapse(layout, key, visible):
 def process_selection(geofolder_path, geography, site_list, pre_selection, pre_selection_path):
     sg.theme('DarkAmber')  # Add a touch of color
     # All the stuff inside your window.
-    layout = [[sg.Text('Welcome to the GP&M tool-kit, what do you want to do?', pad=((2, 10), (2, 5)))],
-              [sg.Button('Daily monitoring report'), sg.Push()],
-              [sg.Button('Event tracker manager'), sg.Push()],
-              [sg.Button('Curtailment calculation'), sg.Push()],
-              [sg.Button('Clipping calculation'), sg.Push()],
-              [sg.Push(), sg.Exit()]]
+    layout = [[sg.Text('Welcome to the GP&M tool-kit, what do you want to do?', pad=((2, 10), (2, 8)))],
+              [sg.Button('Daily monitoring report', size = (20, 2)), sg.Button('Event tracker manager', size = (20, 2)), sg.Push()],
+              [sg.Button('Curtailment calculation', size = (20, 2)), sg.Button('Clipping calculation', size = (20, 2)), sg.Push()],
+              [sg.Button('Contractual calculation', size = (20, 2)), sg.Push()],
+              [sg.Push(), sg.Exit(size = (8, 1))]]
 
     # Create the Window
     window = sg.Window('LSbp GP&M tool-kit', layout)
@@ -50,6 +49,9 @@ def process_selection(geofolder_path, geography, site_list, pre_selection, pre_s
 
         if event == 'Clipping calculation':
             clipping_window(site_list, pre_selection, geography, pre_selection_path)
+
+        if event == 'Contractual calculation':
+            contractual_window(site_list, pre_selection, geography, pre_selection_path)
 
     window.close()
     return
@@ -491,6 +493,84 @@ def clipping_window(site_list, pre_selection, geography, pre_selection_path):
                 #graphs_site = graphs_by_site[site]
 
                 file_creation.create_clipping_file(site, summaries_site, dest_file)
+
+            return
+
+    window.close()
+    return
+
+
+def contractual_window(site_list, pre_selection, geography, pre_selection_path):
+    username = os.getlogin()
+    sg.theme('DarkAmber')  # Add a touch of color
+    # All the stuff inside your window.
+    options_layout = [[sg.Text('Select cutoff date of analysis:', pad=((2, 10), (2, 5)))],
+                      [sg.CalendarButton('Choose date', target='-SCAL-', format="%Y-%m-%d"),
+                       sg.In(key='-SCAL-', text_color='black', size=(16, 1), enable_events=True, readonly=True,
+                             visible=True)],
+                      [sg.Text('Choose the source of information:', pad=((2, 10), (2, 5)))],
+                      [sg.Radio('Database', group_id="source", disabled=True, default=False, key="-SRCDB-"),
+                       sg.Radio('Event Tracker file', group_id="source", default=True, key="-SRCFILE-")],
+                      [sg.Text('Select source on Desktop', pad=((0, 10), (10, 2)))],
+                      [sg.FolderBrowse(target='-SRCFOLDER-',
+                                       initial_folder="C:/Users/" + username + "/OneDrive - Lightsource BP/Desktop"),
+                       sg.In(key='-SRCFOLDER-', text_color='black', size=(20, 1), enable_events=True, readonly=True,
+                             visible=True)],
+                      [sg.Text('Enter geography ', pad=((0, 10), (10, 2))), sg.Push()],
+                      [sg.Combo(['AUS', 'ES', 'USA'], default_value=geography, size=(4, 3), readonly=True, key='-GEO-',
+                                pad=((5, 10), (2, 10))), sg.Push()],
+                      [sg.Text('Select Irradiance Threshold', pad=((0, 10), (10, 2))), sg.Push()],
+                      [sg.Combo([20, 50, 85, 100], default_value=50, size=(11, 3), readonly=True, key='-THR-',
+                                pad=((10, 10), (2, 10)))],
+                      [sg.Button('Submit'), sg.Exit()]]
+
+    sites_layout = [[sg.Checkbox(site, size=(20, 1), default=site in pre_selection,
+                                 key=site.replace(" ", "_"))] for site in site_list]
+
+    layout = [[sg.Column(options_layout),
+               sg.VSeperator(),
+               sg.Column(sites_layout, scrollable=True)]]
+
+    # Create the Window
+    window = sg.Window('Contractual Calculation', layout)
+    # Event Loop to process "events" and get the "values" of the inputs
+    while True:
+        event, values = window.read(timeout=100)
+
+        if event == sg.WIN_CLOSED or event == 'Exit':  # if user closes window or clicks exit
+            break
+
+        if event == 'Submit':
+            site_values = {site.replace(" ", "_"): values[site.replace(" ", "_")] for site in site_list}
+            site_selection = list(compress(site_list, list(site_values.values())))
+            #site_selection = list(compress(site_list, list(values.values())[(0-len(site_list)):]))
+            date_cutoff = values['-SCAL-']
+            source_folder = values['-SRCFOLDER-']
+            irradiance_threshold = values['-THR-']
+            geography = values['-GEO-']
+            geography_folder = source_folder + "/" + geography
+
+            for key in values.keys():
+                if "SRC" in key and values[key] is True:
+                    if "FILE" in key:
+                        source_type = "file"
+                    elif "DB" in key:
+                        source_type = "database"
+
+            all_sites_kpis, kpis_by_om_dict, incidents_by_site, site_selection = \
+                calculations.contractual_calculation(source_folder,geography,geography_folder,site_selection,
+                                                     date_cutoff,irradiance_threshold)
+
+            for site in site_selection:
+                df_site = all_sites_kpis[site]
+                site_incidents_list_period = incidents_by_site[site]
+
+                file_creation.create_contractual_files(geography_folder, df_site, site, site_incidents_list_period, date_cutoff)
+
+
+            for om in kpis_by_om_dict.keys():
+                df_kpis = kpis_by_om_dict[om]
+                file_creation.create_contractual_summary_file(geography_folder, om, df_kpis, all_sites_kpis, date_cutoff)
 
             return
 
