@@ -85,11 +85,11 @@ def main():
 
             windows.process_selection(geofolder_path, event, site_list, pre_selection, pre_selection_path)
 
-            sg.popup(general_info_path)
-
-            return
+            #sg.popup(general_info_path)
 
     window.close()
+
+    return
 
 
 # Press the green button in the gutter to run the script.
