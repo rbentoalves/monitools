@@ -1,10 +1,10 @@
 import PySimpleGUI as sg
 import os
 import sys
-import monitools.windows as windows
+import windows as windows
 import pandas as pd
 import re
-import perfonitor.inputs as inputs
+import inputs as inputs
 
 # This is a sample Python script.
 def resource_path(relative_path):
