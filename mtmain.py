@@ -7,6 +7,7 @@ import re
 import inputs as inputs
 
 # This is a sample Python script.
+# TODO add a select all button for sites
 def resource_path(relative_path):
     try:
         base_path = sys._MEIPASS
@@ -50,7 +51,11 @@ def main():
 
 
             print(os.getcwd())
-            desktop_path = os.path.join(os.path.join(os.environ['USERPROFILE']), 'Desktop').replace('\\', "/").replace("/Desktop", "/OneDrive - Lightsource BP/Desktop")
+            desktop_path = (os.path.join(
+                os.path.join(os.environ['USERPROFILE']), 'Desktop').
+                            replace('\\', "/").
+                            replace("/Desktop", "/OneDrive - LIGHTSOURCE HOLDINGS 2 LIMITED/Desktop"))
+
             print("Desktop folder: ", desktop_path)
             geofolder_path = desktop_path + "/Daily Monitoring Report/" + event
 
@@ -64,7 +69,8 @@ def main():
                 site_list = pd.read_excel(general_info_path, sheet_name='Site Info', engine='openpyxl')["Site"].to_list()
             except FileNotFoundError:
                 general_info_path = inputs.input_file(desktop_path)
-                geofolder_path = re.search(r'C.*Report/' + event, general_info_path).group().replace('\\', "/")
+                geofolder_path = re.search(r'C.*Report/' + event, general_info_path).group().replace('\\',
+                                                                                                     "/")
 
                 pre_selection_path = geofolder_path + "/Info&Templates/site_selection.txt"
 
